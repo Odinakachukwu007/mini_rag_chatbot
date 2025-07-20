@@ -1,0 +1,7 @@
+openai
+beautifulsoup4
+requests
+tiktoken
+pinecone-client>=2.2.4
+pydantic
+python-dotenv
