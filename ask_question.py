@@ -39,16 +39,29 @@ def ask_question(question):
     # Get the embedding for the user question
     query_embedding = get_embedding(question)
 
+
     # Search Pinecone for similar vectors
     search_response = index.query(
         vector=query_embedding,
         top_k=5,
-        include_metadata=True
+        include_metadata=True,
+        namespace="default"
     )
 
-    # Extract matched text chunks
-    retrieved_chunks = [match.metadata['text'] for match in search_response.matches]
-    context = "\n---\n".join(retrieved_chunks)
+    # Only show retrieved contexts, no raw debug output
+
+    # Extract matched text chunks and sources, speaker, and title
+    print("\n📚 Retrieved Contexts:")
+    context_chunks = []
+    for i, match in enumerate(search_response.matches, 1):
+        text = match.metadata.get('text', '')
+        source = match.metadata.get('source', 'N/A')
+        speaker = match.metadata.get('speaker', 'N/A')
+        title = match.metadata.get('title', 'N/A')
+        print(f"{i}. {text[:200]}...\n   Source: {source}\n   Speaker: {speaker}\n   Title: {title}")
+        context_chunks.append(f"{text}\n(Source: {source})\nSpeaker: {speaker}\nTitle: {title}")
+
+    context = "\n---\n".join(context_chunks)
 
     # Prompt for GPT
     system_prompt = "You are a helpful assistant. Use the following conference talk excerpts to answer the question."

@@ -1,6 +1,7 @@
+
 # 🧠 General Conference RAG Chatbot
 
-This is a **Mini Retrieval-Augmented Generation (RAG) chatbot** built with Azure OpenAI, Pinecone, and Streamlit. It allows users to ask questions about LDS General Conference talks and receive accurate, context-rich answers based on the retrieved content.
+This is a professional Retrieval-Augmented Generation (RAG) chatbot built with Azure OpenAI, Pinecone, and Streamlit. It allows users to ask questions about LDS General Conference talks and receive accurate, context-rich answers based on the retrieved content.
 
 ---
 
@@ -11,15 +12,17 @@ mini_rag_chatbot/
 │
 ├── ask_question.py             # Main CLI chatbot logic
 ├── ask_question_web.py         # Streamlit-based web UI version
-├── embed_and_chunk.py          # Script to embed and chunk documents into Pinecone
+├── embed_and_upload.py         # Script to embed and upload documents to Pinecone
 ├── settings.py                 # Environment and API config using Pydantic
 ├── .env                        # Stores secret keys and environment variables
 ├── requirements.txt            # Python dependencies
-├── /chunks                    # Folder for saved chunked JSON files
-└── /docs                      # Folder with LDS General Conference transcripts
+├── data/                       # Folder for CSV and source data files
+├── notebooks/                  # Jupyter notebooks for data exploration
+└── env/                        # Python virtual environment
 ```
 
 ---
+
 
 ## 🚀 What This Project Does
 
@@ -31,6 +34,7 @@ mini_rag_chatbot/
 
 ---
 
+
 ## ✅ Technologies Used
 
 - 🧠 Azure OpenAI (Chat + Embeddings)
@@ -41,54 +45,59 @@ mini_rag_chatbot/
 
 ---
 
-## 📈 Key Steps I Took
+
+## 📈 Key Steps
 
 ### 1. Setup
-- Created a virtual environment using `venv`
-- Installed all dependencies via `requirements.txt`
+- Create a virtual environment using `venv`
+- Install all dependencies via `requirements.txt`
 - Setup `.env` and `settings.py` with API keys and configs
 
-### 2. Document Preprocessing
-- Loaded General Conference transcripts
-- Cleaned and chunked the text into token-friendly segments
-- Generated and stored embeddings in Pinecone
+### 2. Document Preprocessing & Upload
+- Load General Conference transcripts from CSV
+- Clean and chunk the text into token-friendly segments
+- Generate and store embeddings in Pinecone using `embed_and_upload.py`
 
 ### 3. Chatbot Interface
-- Created `ask_question.py` for terminal interaction
-- Created `ask_question_web.py` using Streamlit for a beautiful web UI
+- Use `ask_question.py` for terminal interaction
+- Use `ask_question_web.py` for a polished Streamlit web UI
 
 ---
 
-## ⚠️ Key Errors I Solved
+
+## ⚠️ Key Issues & Solutions
 
 - **Pinecone Import Issue**: Switched from old `pinecone-client` to new `pinecone` package.
 - **Execution Policy Error**: Solved PowerShell script restrictions by adjusting system policy.
 - **Model Attribute Error**: Fixed by renaming `chat_model` to `model_name` in both `.env` and `settings.py`.
 - **Missing API Config**: Ensured `.env` was fully synced with `settings.py` and properly loaded.
+- **Upload/Embedding Issue (Jorge Alberto Feedback)**: Fixed a bug where the upload script was not finding the correct CSV file or uploading all required metadata. Now, `embed_and_upload.py` robustly loads, chunks, and uploads all data fields, and the retrieval scripts display all metadata (source, speaker, title) as required.
 
 ---
+
 
 ## 🌍 How to Run This Project
 
 ### 🔹 Option 1: Terminal
-```bash
-# Activate environment
-.\env\Scripts\activate
+```powershell
+# Activate environment (PowerShell)
+& .\env\Scripts\Activate.ps1
 
 # Run the chatbot
 python ask_question.py
 ```
 
 ### 🔹 Option 2: Web App (Streamlit)
-```bash
-# Activate environment
-.\env\Scripts\activate
+```powershell
+# Activate environment (PowerShell)
+& .\env\Scripts\Activate.ps1
 
 # Run web app
 streamlit run ask_question_web.py
 ```
 
 ---
+
 
 ## 📚 Sample Questions You Can Try
 
@@ -98,12 +107,25 @@ streamlit run ask_question_web.py
 
 ---
 
+
 ## 💼 Why This Project Stands Out
 
 - Combines real-world tools (Pinecone, Azure OpenAI) in a real-world use case
 - Demonstrates understanding of vector search, embedding, prompt engineering, and user interaction
 - Includes both a command-line and a polished web UI
 - Handles errors gracefully and uses professional coding practices
+
+---
+
+
+---
+
+## 🛠️ Troubleshooting
+
+- If you see errors about missing packages, run `pip install -r requirements.txt` after activating your environment.
+- If the upload script (`embed_and_upload.py`) cannot find your CSV, ensure the path is correct and the file is in the `data/` folder.
+- For PowerShell execution policy errors, run `Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass` before activating your environment.
+- If sources, speaker, or title are missing in retrieval results, re-run the upload script to refresh Pinecone with complete metadata.
 
 ---
 

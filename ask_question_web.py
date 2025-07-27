@@ -45,11 +45,20 @@ if query:
             query_embedding = embed_response.data[0].embedding
 
             # Search Pinecone
-            results = index.query(vector=query_embedding, top_k=3, include_metadata=True)
-            retrieved_texts = [match['metadata']['text'] for match in results['matches']]
+            results = index.query(vector=query_embedding, top_k=5, include_metadata=True, namespace="default")
+            matches = results['matches']
 
             # Build context and messages
-            context = "\n\n".join(retrieved_texts)
+            context_chunks = []
+            for match in matches:
+                metadata = match.get('metadata', {})
+                text = metadata.get('text', '')
+                source = metadata.get('source', 'N/A')
+                speaker = metadata.get('speaker', 'N/A')
+                title = metadata.get('title', 'N/A')
+                context_chunks.append(f"{text}\n(Source: {source})")
+
+            context = "\n---\n".join(context_chunks)
             system_msg = {
                 "role": "system",
                 "content": "You are a helpful assistant that answers questions based on LDS General Conference talks."
@@ -63,7 +72,7 @@ if query:
             answer = client.chat.completions.create(
                 model=settings.model_name,
                 messages=[system_msg, user_msg],
-                max_tokens=512,
+                max_tokens=800,
                 temperature=0.7
             )
 
@@ -71,10 +80,15 @@ if query:
             st.markdown("### 🧠 Answer:")
             st.success(answer.choices[0].message.content.strip())
 
-            # Display context
+            # Display context with metadata
             st.markdown("### 📚 Retrieved Contexts:")
-            for i, text in enumerate(retrieved_texts, 1):
-                st.markdown(f"**{i}.** {text[:300]}...")
+            for i, match in enumerate(matches, 1):
+                metadata = match.get('metadata', {})
+                text = metadata.get('text', '')
+                source = metadata.get('source', 'N/A')
+                speaker = metadata.get('speaker', 'N/A')
+                title = metadata.get('title', 'N/A')
+                st.markdown(f"**{i}.** {text[:200]}...\n- Source: [{source}]({source})\n- Speaker: {speaker}\n- Title: {title}")
 
         except Exception as e:
             st.error(f"❌ Something went wrong: {e}")
